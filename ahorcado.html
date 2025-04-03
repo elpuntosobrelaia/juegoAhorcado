@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego del Ahorcado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #wordDisplay {
+            font-size: 24px;
+            margin: 20px;
+        }
+        #keyboard button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #hangman {
+            font-size: 30px;
+            white-space: pre;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego del Ahorcado</h1>
+    <p><strong>Pista:</strong> <span id="hint"></span></p>
+    <pre id="hangman">______
+|    |
+|    
+|    
+|    
+|____</pre>
+    <p id="wordDisplay"></p>
+    <div id="keyboard"></div>
+    <script>
+        const words = [
+            { word: "javascript", hint: "Lenguaje de programación" },
+            { word: "elefante", hint: "Animal grande con trompa" },
+            { word: "piramide", hint: "Estructura del antiguo Egipto" },
+            { word: "volcan", hint: "Montaña que puede hacer erupción" },
+            { word: "estrella", hint: "Objeto luminoso en el cielo nocturno" }
+        ];
+
+        let chosenWordObj = words[Math.floor(Math.random() * words.length)];
+        let chosenWord = chosenWordObj.word;
+        let hint = chosenWordObj.hint;
+        let displayWord = Array(chosenWord.length).fill("_");
+        let mistakes = 0;
+        const maxMistakes = 6;
+        
+        document.getElementById("hint").textContent = hint;
+        document.getElementById("wordDisplay").textContent = displayWord.join(" ");
+
+        function updateHangman() {
+            const hangmanStages = [
+                "______\n|    |\n|    O\n|   /|\\\n|   / \\\n|____",
+                "______\n|    |\n|    O\n|   /|\\\n|   / \n|____",
+                "______\n|    |\n|    O\n|   /|\\\n|     \n|____",
+                "______\n|    |\n|    O\n|   /|\n|     \n|____",
+                "______\n|    |\n|    O\n|   /|\n|     \n|____",
+                "______\n|    |\n|    O\n|     |\n|     \n|____",
+                "______\n|    |\n|    O\n|     \n|     \n|____"
+            ];
+            document.getElementById("hangman").textContent = hangmanStages[maxMistakes - mistakes];
+        }
+
+        function checkLetter(letter) {
+            if (chosenWord.includes(letter)) {
+                for (let i = 0; i < chosenWord.length; i++) {
+                    if (chosenWord[i] === letter) {
+                        displayWord[i] = letter;
+                    }
+                }
+            } else {
+                mistakes++;
+                updateHangman();
+            }
+
+            document.getElementById("wordDisplay").textContent = displayWord.join(" ");
+
+            if (mistakes === maxMistakes) {
+                alert("Perdiste! La palabra era: " + chosenWord);
+                location.reload();
+            } else if (!displayWord.includes("_")) {
+                alert("¡Ganaste! La palabra era: " + chosenWord);
+                location.reload();
+            }
+        }
+
+        function createKeyboard() {
+            const alphabet = "abcdefghijklmnñopqrstuvwxyz".split("");
+            let keyboardDiv = document.getElementById("keyboard");
+            keyboardDiv.innerHTML = "";
+
+            alphabet.forEach(letter => {
+                let button = document.createElement("button");
+                button.textContent = letter;
+                button.onclick = function() {
+                    checkLetter(letter);
+                    button.disabled = true;
+                };
+                keyboardDiv.appendChild(button);
+            });
+        }
+
+        createKeyboard();
+    </script>
+</body>
+</html>
